@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class MGV_TypingLetters : MonoBehaviour
-{
+public class MGV_TypingLetters : MonoBehaviour {
+
     [Header("Text")]
     [SerializeField] TMP_Text textComponent;
     [SerializeField] int maxCharactersVisible;

@@ -22,15 +22,20 @@ public class MG_TypingLetters : MicroGame
 
     public override void Initialize() {
         gameState = MicroGameState.Paused;
-        timeLeft = timeLimit; //TODO: add - microGamesCompleted;
-        //currentStringLength = baseStringLength + microGamesCompleted;
+
+        if (GameManager.Instance != null) {
+            timeLeft = timeLimit - GameManager.Instance.microGamesCompleted;
+            currentStringLength = baseStringLength + GameManager.Instance.microGamesCompleted;
+        }
+        else {
+            timeLeft = timeLimit;
+            currentStringLength = 8;
+        }
+
+
 
         ResetWord();
 
-    }
-
-    private void Update() {
-        UpdateMicroGame();
     }
 
     public override void UpdateMicroGame() {

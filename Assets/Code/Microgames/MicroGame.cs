@@ -25,7 +25,14 @@ public abstract class MicroGame : MonoBehaviour {
     public virtual void Initialize() {
         gameState = MicroGameState.Paused;
 
+        if (GameManager.Instance != null) {
+            timeLeft = timeLimit - GameManager.Instance.microGamesCompleted;
+        }
+        else {
+            timeLeft = timeLimit;
+        }
     }
+
 
     public abstract void OnMistake();
 

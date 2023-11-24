@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour {
     public bool noMistakes;
 
     [Header("Game State")]
+    [SerializeField] public int microGamesCompleted;
     [SerializeField] MicroGame currentMicroGame;
     //[SerializeField] GameState gameState;
 

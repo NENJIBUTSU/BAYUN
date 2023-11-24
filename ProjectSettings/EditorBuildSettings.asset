@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MicroGames/MG_TypingLetters.unity
     guid: e3142d660f7e59f489a2cb6b6936dae8
+  - enabled: 1
+    path: Assets/Scenes/MicroGames/MG_Valve.unity
+    guid: 66bce33d1090d304385cdef2a283d4ac
   m_configObjects: {}
