@@ -9,7 +9,7 @@ public class MGV_TypingLetters : MonoBehaviour {
     [SerializeField] TMP_Text textComponent;
     [SerializeField] int maxCharactersVisible;
     TMP_TextInfo textInfo;
-    int[] characterHeightOffsets;
+    float[] characterHeightOffsets;
 
     [CustomAttributes.ReadOnly] public int currentCharacterIndex;
     [Header("Tweening")]
@@ -18,6 +18,7 @@ public class MGV_TypingLetters : MonoBehaviour {
 
     private void Awake() {
         textInfo = textComponent.textInfo;
+        InitializeText();
     }
 
     public void UpdateVisual() {
@@ -28,9 +29,9 @@ public class MGV_TypingLetters : MonoBehaviour {
 
     void InitializeText() {
         currentCharacterIndex = 0;
-        characterHeightOffsets = new int[textComponent.text.Length];
+        characterHeightOffsets = new float[textComponent.text.Length];
         for (int i = 0; i < textComponent.text.Length; i++) {
-            characterHeightOffsets[i] = Random.Range((int)-1, 2) * 3;
+            characterHeightOffsets[i] = Random.Range(-1, 2) * (float)1.5;
         }
     }
 
@@ -46,7 +47,7 @@ public class MGV_TypingLetters : MonoBehaviour {
 
             for (int j = 0; j < 4; j++) {
                 Vector3 origVerts = verts[charInfo.vertexIndex + j];
-                verts[charInfo.vertexIndex + j] = origVerts + new Vector3(i - currentCharacterIndex, characterHeightOffsets[i], 0); //BOOKMARK: FIGURE OUT FONT SIZE CHANGE
+                verts[charInfo.vertexIndex + j] = origVerts + new Vector3(i - currentCharacterIndex, gameObject.transform.position.y + characterHeightOffsets[i], 0); //BOOKMARK: FIGURE OUT FONT SIZE CHANGE
             }
 
             Color32[] colors32 = textInfo.meshInfo[charInfo.materialReferenceIndex].colors32;

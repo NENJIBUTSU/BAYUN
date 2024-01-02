@@ -40,7 +40,9 @@ public class MG_TypingLetters : MicroGame
 
     public override void UpdateMicroGame() {
         if (gameState == MicroGameState.Paused) {
-
+            if (Input.GetKeyDown(KeyCode.Return)) {
+                SetGameState(MicroGameState.Running);
+            }
         }
         else if (gameState == MicroGameState.Running) {
 
@@ -102,12 +104,7 @@ public class MG_TypingLetters : MicroGame
     public override void OnMistake() {
         //tell game manager the player fucked up!
         if (GameManager.Instance != null) {
-            if (GameManager.Instance.noMistakes) {
-                SetGameState(MicroGameState.Failed);
-            }
-            else {
-                ResetWord();
-            }
+            SetGameState(MicroGameState.Failed);
         } else {
             ResetWord();
         }

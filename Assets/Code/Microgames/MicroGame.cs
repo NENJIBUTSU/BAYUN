@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class MicroGame : MonoBehaviour {
+    [Header("Transition")]
+    [SerializeField] protected Transition transition;
+
     [Header("Game State")]
     [SerializeField] protected MicroGameState gameState;
 
@@ -37,6 +40,11 @@ public abstract class MicroGame : MonoBehaviour {
     public abstract void OnMistake();
 
     public abstract void OnWin();
+
+    public float GetTimeLeftPercentage() {
+        Debug.Log("percentage = " + timeLeft / timeLimit * 100);
+        return timeLeft / timeLimit * 100;
+    }
 }
 
 public enum MicroGameState

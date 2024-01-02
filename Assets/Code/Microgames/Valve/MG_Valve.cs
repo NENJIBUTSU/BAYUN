@@ -16,15 +16,11 @@ public class MG_Valve : MicroGame {
     [SerializeField] int heatDissipationRate;
     [SerializeField] int heatCapPercent;
     [SerializeField, CustomAttributes.ReadOnly] float currentHeat;
-    [SerializeField] int heatGainedPerInput;
+    [SerializeField] int heatRangeGainedPerInput;
     [SerializeField, CustomAttributes.ReadOnly] int turnsUntilUnjammed;
-
-
-
-
-    /*[Header("Visuals Object")]
+    
+    [Header("Visuals Object")]
     [SerializeField] MGV_Valve visualsComponent;
-    */
 
     private void Awake() {
         Initialize();
@@ -36,23 +32,29 @@ public class MG_Valve : MicroGame {
         turnsUntilUnjammed = 0;
         valveProgress = 0;
 
-
-
         nextValveInput = (NextValveInput)Random.Range(0, 4);
 
         if (GameManager.Instance != null) {
             timeLeft = timeLimit - GameManager.Instance.microGamesCompleted;
+
+            progressGainedPerInput = 5 - Mathf.RoundToInt(GameManager.Instance.microGamesCompleted / 2);
+
             heatCapPercent = 75 - GameManager.Instance.microGamesCompleted;
+            heatRangeGainedPerInput = 2 + Mathf.RoundToInt(GameManager.Instance.microGamesCompleted / 2);
         }
         else {
             timeLeft = timeLimit;
             heatCapPercent = 75;
         }
+
+        visualsComponent.OnValveTurn(nextValveInput, 0, false);
     }
 
     public override void UpdateMicroGame() {
         if (gameState == MicroGameState.Paused) {
-
+            if (Input.GetKeyDown(KeyCode.Return)) {
+                SetGameState(MicroGameState.Running);
+            }
         }
         else if (gameState == MicroGameState.Running) {
             if (valveProgress >= 100) {
@@ -64,6 +66,10 @@ public class MG_Valve : MicroGame {
             ValveModeCheck();
             GetNextInput();
             ReduceHeat();
+
+            if (timeLeft < 0) {
+                OnMistake();
+            }
         }
     }
 
@@ -87,11 +93,11 @@ public class MG_Valve : MicroGame {
     }
 
     public override void OnMistake() {
-        throw new System.NotImplementedException();
+        SetGameState(MicroGameState.Failed);
     }
 
     public override void OnWin() {
-        throw new System.NotImplementedException();
+        SetGameState(MicroGameState.Won);
     }
 
     private void Update() {
@@ -116,6 +122,7 @@ public class MG_Valve : MicroGame {
                         IncreaseValveProgress();
                         IncreaseHeat();
                         nextValveInput++;
+                        visualsComponent.OnValveTurn(nextValveInput, progressGainedPerInput, false);
                     }
                     break;
                 case NextValveInput.Up:
@@ -123,6 +130,7 @@ public class MG_Valve : MicroGame {
                         IncreaseValveProgress();
                         IncreaseHeat();
                         nextValveInput++;
+                        visualsComponent.OnValveTurn(nextValveInput, progressGainedPerInput, false);
                     }
                     break;
 
@@ -131,6 +139,7 @@ public class MG_Valve : MicroGame {
                         IncreaseValveProgress();
                         IncreaseHeat();
                         nextValveInput++;
+                        visualsComponent.OnValveTurn(nextValveInput, progressGainedPerInput, false);
                     }
                     break;
                 case NextValveInput.Down:
@@ -138,6 +147,7 @@ public class MG_Valve : MicroGame {
                         IncreaseValveProgress();
                         IncreaseHeat();
                         nextValveInput = NextValveInput.Left;
+                        visualsComponent.OnValveTurn(nextValveInput, progressGainedPerInput, false);
                     }
                     break;
             }
@@ -149,6 +159,7 @@ public class MG_Valve : MicroGame {
                     if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) {
                         turnsUntilUnjammed = Mathf.Clamp(turnsUntilUnjammed - 1, 0, 30);
                         nextValveInput = NextValveInput.Right;
+                        visualsComponent.OnValveTurn(nextValveInput, progressGainedPerInput, true);
                     }
 
                     break;
@@ -156,6 +167,7 @@ public class MG_Valve : MicroGame {
                     if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) {
                         turnsUntilUnjammed = Mathf.Clamp(turnsUntilUnjammed - 1, 0, 30);
                         nextValveInput = NextValveInput.Down;
+                        visualsComponent.OnValveTurn(nextValveInput, progressGainedPerInput, true);
                     }
 
                     break;
@@ -163,12 +175,14 @@ public class MG_Valve : MicroGame {
                     if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) {
                         turnsUntilUnjammed = Mathf.Clamp(turnsUntilUnjammed - 1, 0, 30);
                         nextValveInput = NextValveInput.Left;
+                        visualsComponent.OnValveTurn(nextValveInput, progressGainedPerInput, true);
                     }
                     break;
                 case NextValveInput.Down:
                     if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) {
                         turnsUntilUnjammed = Mathf.Clamp(turnsUntilUnjammed - 1, 0, 30);
                         nextValveInput = NextValveInput.Up;
+                        visualsComponent.OnValveTurn(nextValveInput, progressGainedPerInput, true);
                     }
                     break;
             }
@@ -178,7 +192,8 @@ public class MG_Valve : MicroGame {
         valveProgress = Mathf.Clamp(valveProgress + progressGainedPerInput, 0, 100);
     }
     void IncreaseHeat() {
-        currentHeat = Mathf.Clamp(currentHeat + heatGainedPerInput,0,100);
+        int r = Random.Range(5, heatRangeGainedPerInput + 1);
+        currentHeat = Mathf.Clamp(currentHeat + r,0,100);
     }
     void ReduceHeat() {
         currentHeat = Mathf.Clamp(currentHeat - (Time.deltaTime * heatDissipationRate), 0, 100);
@@ -187,7 +202,7 @@ public class MG_Valve : MicroGame {
     void SetJammedTurns() {
         int t = 0;
         if (GameManager.Instance != null) {
-            t = Random.Range(3, 8 + GameManager.Instance.microGamesCompleted);
+            t = Random.Range(10, 15 + GameManager.Instance.microGamesCompleted);
 
             if (t % 2 == 1) {
                 turnsUntilUnjammed = t;
@@ -213,7 +228,7 @@ public class MG_Valve : MicroGame {
         Jammed
     }
 }
-enum NextValveInput {
+public enum NextValveInput {
     Left,
     Up,
     Right,

@@ -15,23 +15,17 @@ public class LoadingManager : MonoBehaviour
         else { Instance = this; DontDestroyOnLoad(gameObject); }
     }
 
-    AsyncOperation loadingOperation;
-
-    public void LoadMicroGame(string sceneToLoad) {
+    public AsyncOperation LoadMicroGame(string sceneToLoad) {
         if (SceneManager.sceneCount > 1) {
             BeginUnloadSceneAsync(SceneManager.GetSceneAt(1));
         }
 
-        BeginLoadAsync(sceneToLoad);
+        return BeginLoadAsync(sceneToLoad);
     }
 
 
-    public void BeginLoadAsync(string sceneToLoad) {
-        loadingOperation = LoadSceneAsync(sceneToLoad,true);
-    }
-
-    void EndLoading() {
-
+    public AsyncOperation BeginLoadAsync(string sceneToLoad) {
+        return LoadSceneAsync(sceneToLoad,true);
     }
 
     void LoadScene(string sceneToLoad, bool isAdditive) {
@@ -54,14 +48,5 @@ public class LoadingManager : MonoBehaviour
 
     void BeginUnloadSceneAsync(Scene scene) {
         SceneManager.UnloadSceneAsync(scene);
-    }
-
-    private void UpdateLoadManager() {
-        if (loadingOperation != null) {
-            while (!loadingOperation.isDone) {
-                //do loading screen stuff!
-            }
-        }
-
     }
 }
