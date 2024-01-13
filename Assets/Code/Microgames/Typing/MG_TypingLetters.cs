@@ -15,6 +15,9 @@ public class MG_TypingLetters : MicroGame
 
     [CustomAttributes.ReadOnly, SerializeField]bool hasTypedLetter;
 
+    [Header("Audio")]
+    [SerializeField] AudioClip[] keyboardSounds;
+
     private void Awake() {
         Initialize();
     }
@@ -39,12 +42,12 @@ public class MG_TypingLetters : MicroGame
     }
 
     public override void UpdateMicroGame() {
-        if (gameState == MicroGameState.Paused) {
-            if (Input.GetKeyDown(KeyCode.Return)) {
-                SetGameState(MicroGameState.Running);
+
+        if (gameState == MicroGameState.Running) {
+
+            if (timeLeft <= 0) {
+                SetGameState(MicroGameState.Failed);
             }
-        }
-        else if (gameState == MicroGameState.Running) {
 
             if (textToMatch.Length == textBuffer.Length && CheckForMatch()) { 
                 OnWin();
@@ -54,6 +57,7 @@ public class MG_TypingLetters : MicroGame
                 char c = Input.inputString[0];
 
                 if (char.IsLetter(c)) {
+                    AudioManager.Instance.audioSource.PlayOneShot(keyboardSounds[Random.Range(0, keyboardSounds.Length - 1)]);
                     hasTypedLetter = true;
                     c = char.ToLower(Input.inputString[0]);
                     textBuffer += c;

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MG_Valve : MicroGame {
 
@@ -14,13 +15,24 @@ public class MG_Valve : MicroGame {
 
     [Header("Valve Heat")]
     [SerializeField] int heatDissipationRate;
-    [SerializeField] int heatCapPercent;
+    [SerializeField] float heatCapPercent;
     [SerializeField, CustomAttributes.ReadOnly] float currentHeat;
     [SerializeField] int heatRangeGainedPerInput;
     [SerializeField, CustomAttributes.ReadOnly] int turnsUntilUnjammed;
+
+    [SerializeField] TimerImage heatBar;
+    [SerializeField] Image heatBarBackground;
+    [SerializeField] GameObject topHeatBarObject;
+    [SerializeField] GameObject midHeatBarObject;
+    [SerializeField] GameObject botHeatBarObject;
+    [SerializeField] int heatBarsLeft;
     
     [Header("Visuals Object")]
     [SerializeField] MGV_Valve visualsComponent;
+
+    [Header("Audio")]
+    [SerializeField] AudioClip[] valveTurnSounds;
+    [SerializeField] AudioClip valveUnjamSound;
 
     private void Awake() {
         Initialize();
@@ -37,26 +49,21 @@ public class MG_Valve : MicroGame {
         if (GameManager.Instance != null) {
             timeLeft = timeLimit - GameManager.Instance.microGamesCompleted;
 
-            progressGainedPerInput = 5 - Mathf.RoundToInt(GameManager.Instance.microGamesCompleted / 2);
+            progressGainedPerInput = 2;
 
-            heatCapPercent = 75 - GameManager.Instance.microGamesCompleted;
-            heatRangeGainedPerInput = 2 + Mathf.RoundToInt(GameManager.Instance.microGamesCompleted / 2);
+            heatCapPercent = 100;
+            heatRangeGainedPerInput = 8 + Mathf.RoundToInt(GameManager.Instance.microGamesCompleted / 2);
         }
         else {
             timeLeft = timeLimit;
-            heatCapPercent = 75;
+            heatCapPercent = 100;
         }
 
         visualsComponent.OnValveTurn(nextValveInput, 0, false);
     }
 
     public override void UpdateMicroGame() {
-        if (gameState == MicroGameState.Paused) {
-            if (Input.GetKeyDown(KeyCode.Return)) {
-                SetGameState(MicroGameState.Running);
-            }
-        }
-        else if (gameState == MicroGameState.Running) {
+        if (gameState == MicroGameState.Running) {
             if (valveProgress >= 100) {
                 OnWin();
             }
@@ -67,20 +74,66 @@ public class MG_Valve : MicroGame {
             GetNextInput();
             ReduceHeat();
 
-            if (timeLeft < 0) {
+            if (timeLeft <= 0) {
                 OnMistake();
             }
         }
+
+        if (valveMode == ValveMode.Normal) {
+            if (heatBarsLeft == 3) {
+                heatBar.UpdateTimerImage(Mathf.Clamp(currentHeat, 0, 100), false);
+            }
+            else if (heatBarsLeft == 2) {
+                heatBar.UpdateTimerImage(Mathf.Clamp(currentHeat, 0, 66.6f), false);
+            }
+            else if (heatBarsLeft == 1) {
+                heatBar.UpdateTimerImage(Mathf.Clamp(currentHeat, 0, 33.3f), false);
+            }
+
+        }
+        else {
+            heatBar.UpdateTimerImage(heatCapPercent, false);
+        }
+
     }
 
     void ChangeValveMode(ValveMode mode) {
         if (mode == ValveMode.Normal) {
             valveMode = ValveMode.Normal;
+            AudioManager.Instance.audioSource.PlayOneShot(valveUnjamSound);
         }
         else if (mode == ValveMode.Jammed) {
             if (GameManager.Instance != null) {
                 valveMode = ValveMode.Jammed;
                 SetJammedTurns();
+
+                if (heatBarsLeft == 3) {
+                    topHeatBarObject.gameObject.SetActive(false);
+                }
+                else if (heatBarsLeft == 2) {
+                    midHeatBarObject.gameObject.SetActive(false);
+                }
+                else if (heatBarsLeft == 1) {
+                    botHeatBarObject.gameObject.SetActive(false);
+                }
+                heatBarsLeft--;
+
+                heatBarBackground.fillAmount -= 0.333f;
+                
+                if (heatBarsLeft <= 0) {
+                    OnMistake();
+                }
+
+                if (heatBarsLeft == 2) {
+                    heatCapPercent = 66.6f;
+                }
+                else if (heatBarsLeft == 1) {
+                    heatCapPercent = 33.3f;
+                }
+                else if (heatBarsLeft == 0) {
+                    heatCapPercent = 0.0f;
+                }
+
                 currentHeat = 0;
             }
             else {
@@ -100,12 +153,8 @@ public class MG_Valve : MicroGame {
         SetGameState(MicroGameState.Won);
     }
 
-    private void Update() {
-        UpdateMicroGame();
-    }
-
     void ValveModeCheck() {
-        if (currentHeat > heatCapPercent && valveMode == ValveMode.Normal) {
+        if (currentHeat >= heatCapPercent && valveMode == ValveMode.Normal) {
             ChangeValveMode(ValveMode.Jammed);
         }
         else if (turnsUntilUnjammed <= 0 && valveMode == ValveMode.Jammed) {
@@ -123,6 +172,7 @@ public class MG_Valve : MicroGame {
                         IncreaseHeat();
                         nextValveInput++;
                         visualsComponent.OnValveTurn(nextValveInput, progressGainedPerInput, false);
+                        AudioManager.Instance.audioSource.PlayOneShot(valveTurnSounds[Random.Range(0, valveTurnSounds.Length - 1)]);
                     }
                     break;
                 case NextValveInput.Up:
@@ -131,6 +181,7 @@ public class MG_Valve : MicroGame {
                         IncreaseHeat();
                         nextValveInput++;
                         visualsComponent.OnValveTurn(nextValveInput, progressGainedPerInput, false);
+                        AudioManager.Instance.audioSource.PlayOneShot(valveTurnSounds[Random.Range(0, valveTurnSounds.Length - 1)]);
                     }
                     break;
 
@@ -140,6 +191,7 @@ public class MG_Valve : MicroGame {
                         IncreaseHeat();
                         nextValveInput++;
                         visualsComponent.OnValveTurn(nextValveInput, progressGainedPerInput, false);
+                        AudioManager.Instance.audioSource.PlayOneShot(valveTurnSounds[Random.Range(0, valveTurnSounds.Length - 1)]);
                     }
                     break;
                 case NextValveInput.Down:
@@ -148,6 +200,7 @@ public class MG_Valve : MicroGame {
                         IncreaseHeat();
                         nextValveInput = NextValveInput.Left;
                         visualsComponent.OnValveTurn(nextValveInput, progressGainedPerInput, false);
+                        AudioManager.Instance.audioSource.PlayOneShot(valveTurnSounds[Random.Range(0, valveTurnSounds.Length - 1)]);
                     }
                     break;
             }
@@ -160,6 +213,7 @@ public class MG_Valve : MicroGame {
                         turnsUntilUnjammed = Mathf.Clamp(turnsUntilUnjammed - 1, 0, 30);
                         nextValveInput = NextValveInput.Right;
                         visualsComponent.OnValveTurn(nextValveInput, progressGainedPerInput, true);
+                        
                     }
 
                     break;
@@ -193,7 +247,7 @@ public class MG_Valve : MicroGame {
     }
     void IncreaseHeat() {
         int r = Random.Range(5, heatRangeGainedPerInput + 1);
-        currentHeat = Mathf.Clamp(currentHeat + r,0,100);
+        currentHeat = Mathf.Clamp(currentHeat + r,0,101);
     }
     void ReduceHeat() {
         currentHeat = Mathf.Clamp(currentHeat - (Time.deltaTime * heatDissipationRate), 0, 100);

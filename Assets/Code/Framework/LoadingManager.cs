@@ -49,4 +49,20 @@ public class LoadingManager : MonoBehaviour
     void BeginUnloadSceneAsync(Scene scene) {
         SceneManager.UnloadSceneAsync(scene);
     }
+
+    public void ReturnToMenu() {
+        StartCoroutine(ReturnToMenuCoroutine());
+    }
+    IEnumerator ReturnToMenuCoroutine() {
+        yield return new WaitForEndOfFrame();
+        AudioManager.Instance.DestroySelf();
+        GameManager.Instance.DestroySelf();
+        LoadingManager.Instance.DestroySelf();
+        SceneManager.LoadScene(0);
+    }
+
+    public void DestroySelf() {
+        Destroy(this.gameObject);
+        Instance = null;
+    }
 }

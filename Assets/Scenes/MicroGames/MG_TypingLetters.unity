@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48d271ca2845c2744a31545a74f313ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  transition: {fileID: 1008416864}
+  microGameIntro: {fileID: 0}
   gameState: 0
   timeLimit: 30
   timeLeft: 30
@@ -161,6 +161,15 @@ MonoBehaviour:
   textToMatch: 
   visualsComponent: {fileID: 1315988041}
   hasTypedLetter: 0
+  keyboardSounds:
+  - {fileID: 8300000, guid: 7153d4ef9ca244b4c9eaf94352fd007a, type: 3}
+  - {fileID: 8300000, guid: b0b70d25b54373243b4250efcc761d3b, type: 3}
+  - {fileID: 8300000, guid: a6f1441674400914f9ef2e46e2e5fa77, type: 3}
+  - {fileID: 8300000, guid: 5641ea940f5088841a74f3a3d3122eca, type: 3}
+  - {fileID: 8300000, guid: 5cf099d364d1d2840918789c364666ff, type: 3}
+  - {fileID: 8300000, guid: adff630c3d5a6c04183627472987e71e, type: 3}
+  - {fileID: 8300000, guid: c0944afeaf5c4f541a2b6608915f5f05, type: 3}
+  - {fileID: 8300000, guid: ba9f4c08db837594ba72e87ac910a9ed, type: 3}
 --- !u!4 &87973710
 Transform:
   m_ObjectHideFlags: 0
@@ -188,7 +197,7 @@ GameObject:
   - component: {fileID: 1008416864}
   m_Layer: 0
   m_Name: Transition
-  m_TagString: Transition
+  m_TagString: Intro
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -205,15 +214,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b15e818f430dab547bb32e000bf9d71c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  microGameContainer: {fileID: 1752148061}
   finalText: RECITE
   textIndex: 0
   textComponent: {fileID: 1114186360}
-  transitionTime: 5
+  transitionTime: 3
   transitionTimeLeft: 0
   textTransitionTime: 2
   textTransitionTimeLeft: 0
-  isTransitionFinished: 0
+  isIntroFinished: 0
   endTransitionTime: 0
 --- !u!4 &1008416865
 Transform:

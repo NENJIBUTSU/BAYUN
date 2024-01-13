@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class MicroGame : MonoBehaviour {
-    [Header("Transition")]
-    [SerializeField] protected Transition transition;
+    [Header("Intro")]
+    [SerializeField] protected MicroGameIntro microGameIntro;
 
     [Header("Game State")]
     [SerializeField] protected MicroGameState gameState;

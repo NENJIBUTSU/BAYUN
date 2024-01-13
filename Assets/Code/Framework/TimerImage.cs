@@ -10,10 +10,10 @@ public class TimerImage : MonoBehaviour
         timerImage.fillAmount = 1;
     }
     [SerializeField] Image timerImage;
-    public void UpdateTimerImage(float percentage) {
+    public void UpdateTimerImage(float percentage, bool turnsRed) {
         timerImage.fillAmount = percentage / 100;
 
-        if (percentage < 25) {
+        if (percentage < 25 && turnsRed) {
             timerImage.color = new Color(
                 Mathf.Lerp(0.54f, 1, percentage / 100),
                 Mathf.Lerp(0f, 1, percentage / 100),

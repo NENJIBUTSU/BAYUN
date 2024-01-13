@@ -6,6 +6,7 @@ TagManager:
   tags:
   - MicroGame
   - Transition
+  - Intro
   layers:
   - Default
   - TransparentFX
